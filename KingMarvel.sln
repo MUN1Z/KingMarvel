@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Presentation", "1 - Presentation", "{213374C7-A203-4F0C-B19F-9FF9FEBE2088}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Application", "2 - Application", "{50EA6E57-90B4-482A-B52B-4E8A068E807C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Domain", "3 - Domain", "{CB747323-D2CA-4F92-AE50-220EE51244F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Infra", "4 - Infra", "{8795335B-F657-4563-8ACC-42E5D4913ED9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 - CrossCutting", "5 - CrossCutting", "{BE556146-DE9E-466B-9D3C-81EB06E71831}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6 - Tests", "6 - Tests", "{54275AC0-8D42-4736-AF38-245413E64281}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingMarvel.API", "src\KingMarvel.API\KingMarvel.API.csproj", "{36A8F006-2F1B-413B-9CCE-016F46DBE90A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36A8F006-2F1B-413B-9CCE-016F46DBE90A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36A8F006-2F1B-413B-9CCE-016F46DBE90A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36A8F006-2F1B-413B-9CCE-016F46DBE90A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36A8F006-2F1B-413B-9CCE-016F46DBE90A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{36A8F006-2F1B-413B-9CCE-016F46DBE90A} = {213374C7-A203-4F0C-B19F-9FF9FEBE2088}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {79C28F1D-8E25-4762-B744-9358F8C27D37}
+	EndGlobalSection
+EndGlobal

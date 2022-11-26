@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <v-main>
+                <v-container>{{ pageTitle }}</v-container>
+
+                <v-flex>
+                    <v-card>
+                        <v-card-actions>
+                            <v-row>
+                                <v-col cols="3"
+                                       sm="4"
+                                       md="4">
+                                    <v-text-field label="Search"></v-text-field>
+                                </v-col>
+
+                                <v-col cols="3"
+                                       sm="4"
+                                       md="4">
+                                    <v-select v-model="size" :items="items" label="Tipo"></v-select>
+                                    <v-spacer></v-spacer>
+                                </v-col>
+
+                                <v-col cols="2"
+                                       sm="4"
+                                       md="4">
+                                    <!--<v-btn elevation="2">Filter</v-btn>-->
+                                </v-col>
+                            </v-row>
+                        </v-card-actions>
+                        <v-container fluid>
+                            <v-layout row wrap >
+                                <v-flex v-for="character in characters"
+                                        :key="character"
+                                         xs12 sm6 md4 lg4>
+                                    <div class="grow v-card v-sheet theme--light elevation-3" style="height: 400px; margin: 10px; ">
+                                        <v-img max-height="336"
+                                               :src="`${character.thumb}`"></v-img>
+
+                                        <v-row>
+                                            <v-col >
+                                                <div class="v-card__title">{{ character.name }}</div>
+                                            </v-col>
+
+                                            <v-col cols="2"
+                                               xs="2"
+                                               sm="2"
+                                               md="2"
+                                               lg="2">
+                                                <v-rating color="warning"
+                                                          dense
+                                                          hover
+                                                          length="1"
+                                                          value="0"
+                                                          size="50"></v-rating>
+                                            </v-col>
+
+                                        </v-row>
+
+                                        <!--<div class="v-card__title">{{ character.name }}</div>
+                                        <div class="v-card__subtitle">{{ character.name }}</div>-->
+                                        <!--<div class="v-card__text">{{ character.description }}</div>-->
+                                        <!--<div class="v-card__actions">
+                                            <button type="button" class="v-btn v-btn--text theme--light v-size--default primary--text">
+                                                <span class="v-btn__content">Favoritar</span>
+                                            </button>
+                                        </div>-->
+                                    </div>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                    </v-card>
+                </v-flex>
+            </v-main>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: {
+                pageTitle: 'HelloWorld VueJS',
+                characters: null,
+                items: ['Todos', 'Favoritos']
+            },
+            mounted() {
+                axios
+                    .get('https://localhost:44384/api/Character')
+                    .then(response => (this.characters = response.data))
+                    .catch(error => console.error(error))
+            }
+        })
+    </script>
+</body>
+</html>
