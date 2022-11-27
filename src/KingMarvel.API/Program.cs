@@ -1,7 +1,5 @@
 using KingMarvel.CrossCutting.IoC;
 using KingMarvel.Domain.Interfaces;
-using Microsoft.Extensions.Configuration;
-using static KingMarvel.API.Controllers.CharacterController;
 
 var builder = WebApplication.CreateBuilder(args);
 
