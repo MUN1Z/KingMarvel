@@ -99,7 +99,7 @@
             mounted() {
                 axios
                     .get('https://localhost:44384/api/Character')
-                    .then(response => (this.characters = response.data))
+                    .then(response => (this.characters = response.data.data))
                     .catch(error => console.error(error))
             }
         })

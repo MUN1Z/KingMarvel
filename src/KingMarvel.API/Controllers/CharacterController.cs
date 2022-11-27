@@ -1,3 +1,4 @@
+using Azure;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
@@ -6,7 +7,7 @@ namespace KingMarvel.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CharacterController : ControllerBase
+    public class CharacterController : BaseController
     {
         public class Character
         {
@@ -29,7 +30,7 @@ namespace KingMarvel.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Character>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var characters = new List<Character>();
 
@@ -40,32 +41,24 @@ namespace KingMarvel.API.Controllers
             //var url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}&name={Uri.EscapeUriString("Captain America")}";
             var url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}";
 
-            try
+            using (var httpClient = new HttpClient())
             {
-                using (var httpClient = new HttpClient())
+                var response = await httpClient.GetFromJsonAsync<Root>(url);
+
+                foreach (var item in response.Data.Results)
                 {
-                    var response = await httpClient.GetFromJsonAsync<Root>(url);
-
-
-                    foreach (var item in response.Data.Results)
+                    characters.Add(new Character
                     {
-                        characters.Add(new Character
-                        {
-                            Id = item.Id,
-                            Name = item.Name,
-                            Description = item.Description,
-                            Favorite = false,
-                            Thumb = $"{item.Thumbnail.Path}.{item.Thumbnail.Extension}"
-                        });
-                    }
+                        Id = item.Id,
+                        Name = item.Name,
+                        Description = item.Description,
+                        Favorite = false,
+                        Thumb = $"{item.Thumbnail.Path}.{item.Thumbnail.Extension}"
+                    });
                 }
             }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-            }
 
-            return characters;
+            return Response(characters);
         }
 
         string CreateMD5(string ts, string publicKey, string privateKey)
