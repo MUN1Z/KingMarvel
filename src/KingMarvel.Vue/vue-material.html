@@ -93,14 +93,29 @@
                     <v-card>
                         <v-toolbar color="primary"
                                    dark>{{ selectedCharacterDetails?.name }}</v-toolbar>
-                        <v-img
-                               :src="`${selectedCharacterDetails?.thumb}`"></v-img>
+                        <v-img :src="`${selectedCharacterDetails?.thumb}`"></v-img>
                         <v-card-text>
                             <div class="text-h6 pa-12">{{ selectedCharacterDetails?.description }}</div>
                         </v-card-text>
                         <v-card-actions class="justify-end">
                             <v-btn text
                                    @click.stop="showDialogSelectedCharacterDetails=false">Close</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
+                <v-dialog v-model="showDialogErrorDetails"
+                          transition="dialog-top-transition"
+                          max-width="600">
+                    <v-card>
+                        <v-toolbar color="red"
+                                   dark>{{ errorDetails?.code }}</v-toolbar>
+                        <v-card-text>
+                            <div class="text-h6 pa-12">{{ errorDetails?.response.data.errors[0] }}</div>
+                        </v-card-text>
+                        <v-card-actions class="justify-end">
+                            <v-btn text
+                                   @click.stop="showDialogErrorDetails=false">Close</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
@@ -123,7 +138,9 @@
                 characterNameFilter: null,
                 characterTypeFilter: null,
                 showDialogSelectedCharacterDetails: false,
-                selectedCharacterDetails: null
+                selectedCharacterDetails: null,
+                showDialogErrorDetails: false,
+                errorDetails: null
             },
             mounted() {
                 this.characterTypeFilter = this.itemsCharacterTypeFilter[0]
@@ -142,7 +159,8 @@
                         })
                         .catch(error => {
                             console.error(error)
-                            alert(error.response.data.errors[0])
+                            this.errorDetails = error
+                            this.showDialogErrorDetails = true
                         })
                 },
                 onFilterClick: function () {
