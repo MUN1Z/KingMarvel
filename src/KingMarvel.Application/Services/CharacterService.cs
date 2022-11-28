@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using KingMarvel.Application.Exceptions;
+using KingMarvel.Application.Filters;
 using KingMarvel.Application.Services.Interfaces;
 using KingMarvel.Application.ViewModels.Response;
 using KingMarvel.Domain.Entities;
@@ -17,7 +18,6 @@ namespace KingMarvel.Application.Services
         #region private members
 
         private readonly IConfiguration _configuration;
-
         private readonly ICharacterRepository _characterRepository;
 
         #endregion private members
@@ -38,16 +38,29 @@ namespace KingMarvel.Application.Services
 
         #region public methods implementations
 
-        public async Task<IEnumerable<CharacterResponseViewModel>> GetAll()
+        public async Task<IEnumerable<CharacterResponseViewModel>> GetAll(CharacterFilter filter)
         {
+            if (filter.Favorite.HasValue && filter.Favorite.Value)
+            {
+                var (charactersDb, totalCountDb) = await _characterRepository.FindAllByAsync(filter,
+                    predicate: c => c.Favorite,
+                    orderBy: c => c.Name,
+                    hasPagination: false);
+
+                return _mapper.Map<IEnumerable<CharacterResponseViewModel>>(charactersDb);
+            }
+
             var characters = new List<CharacterResponseViewModel>();
 
             var ts = DateTime.Now.Ticks.ToString();
             var publicKey = _configuration.GetSection("MarvelAPI").GetSection("PublicKey").Value;
             var privateKey = _configuration.GetSection("MarvelAPI").GetSection("PrivateKey").Value;
             var hash = CreateMD5(ts, publicKey, privateKey);
-            //var url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}&name={Uri.EscapeUriString("Captain America")}";
+
             var url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}";
+
+            if (!string.IsNullOrEmpty(filter.Name))
+                url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}&name={Uri.EscapeUriString(filter.Name)}";
 
             using (var httpClient = new HttpClient())
             {
