@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using KingMarvel.Application.Comparers;
 using KingMarvel.Application.Exceptions;
 using KingMarvel.Application.Filters;
 using KingMarvel.Application.Services.Interfaces;
@@ -40,6 +41,8 @@ namespace KingMarvel.Application.Services
 
         public async Task<IEnumerable<CharacterResponseViewModel>> GetAll(CharacterFilter filter)
         {
+            var characters = new List<CharacterResponseViewModel>();
+
             if (filter.Favorite.HasValue && filter.Favorite.Value)
             {
                 var (charactersDb, totalCountDb) = await _characterRepository.FindAllByAsync(filter,
@@ -47,42 +50,42 @@ namespace KingMarvel.Application.Services
                     orderBy: c => c.Name,
                     hasPagination: false);
 
-                return _mapper.Map<IEnumerable<CharacterResponseViewModel>>(charactersDb);
+                characters = _mapper.Map<IEnumerable<CharacterResponseViewModel>>(charactersDb).ToList();
             }
-
-            var characters = new List<CharacterResponseViewModel>();
-
-            var ts = DateTime.Now.Ticks.ToString();
-            var publicKey = _configuration.GetSection("MarvelAPI").GetSection("PublicKey").Value;
-            var privateKey = _configuration.GetSection("MarvelAPI").GetSection("PrivateKey").Value;
-            var hash = CreateMD5(ts, publicKey, privateKey);
-
-            var url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}";
-
-            if (!string.IsNullOrEmpty(filter.Name))
-                url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}&name={Uri.EscapeUriString(filter.Name)}";
-
-            using (var httpClient = new HttpClient())
+            else
             {
-                var response = await httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-                var responseData = JsonConvert.DeserializeObject<dynamic>(responseBody);
-                foreach (var item in responseData.data.results)
+                var ts = DateTime.Now.Ticks.ToString();
+                var publicKey = _configuration.GetSection("MarvelAPI").GetSection("PublicKey").Value;
+                var privateKey = _configuration.GetSection("MarvelAPI").GetSection("PrivateKey").Value;
+                var hash = CreateMD5(ts, publicKey, privateKey);
+
+                var url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}";
+
+                if (!string.IsNullOrEmpty(filter.Name))
+                    url = $"http://gateway.marvel.com/v1/public/characters?ts={ts}&apikey={publicKey}&hash={hash}&name={Uri.EscapeUriString(filter.Name)}";
+
+                using (var httpClient = new HttpClient())
                 {
-                    var existentCharacter = await _characterRepository.GetByIdAsync((int)item.id);
-                    characters.Add(new CharacterResponseViewModel
+                    var response = await httpClient.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonConvert.DeserializeObject<dynamic>(responseBody);
+                    foreach (var item in responseData.data.results)
                     {
-                        Id = item.id,
-                        Name = item.name,
-                        Description = item.description,
-                        Favorite = existentCharacter != null ? existentCharacter.Favorite : false,
-                        Thumb = $"{item.thumbnail.path}.{item.thumbnail.extension}"
-                    });
+                        var existentCharacter = await _characterRepository.GetByIdAsync((int)item.id);
+                        characters.Add(new CharacterResponseViewModel
+                        {
+                            Id = item.id,
+                            Name = item.name,
+                            Description = item.description,
+                            Favorite = existentCharacter != null ? existentCharacter.Favorite : false,
+                            Thumb = $"{item.thumbnail.path}.{item.thumbnail.extension}"
+                        });
+                    }
                 }
             }
 
-            return characters;
+            return characters.OrderByDescending(c => c.Favorite, new BooleanComparer()).ThenBy(c => c.Name);
         }
 
         public async Task<CharacterResponseViewModel> Favorite(CharacterRequestViewModel characterViewModel)
