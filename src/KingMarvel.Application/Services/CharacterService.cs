@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
+using KingMarvel.Application.Exceptions;
 using KingMarvel.Application.Services.Interfaces;
 using KingMarvel.Application.ViewModels.Response;
+using KingMarvel.Domain.Entities;
 using KingMarvel.Domain.Interfaces;
+using KingMarvel.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace KingMarvel.Application.Services
 {
@@ -17,15 +18,20 @@ namespace KingMarvel.Application.Services
 
         private readonly IConfiguration _configuration;
 
+        private readonly ICharacterRepository _characterRepository;
+
         #endregion private members
 
         #region constructors
 
         public CharacterService(
             IConfiguration configuration,
-            IUnitOfWork work) : base(work, null)
+            ICharacterRepository characterRepository,
+            IUnitOfWork work,
+            IMapper mapper) : base(work, mapper)
         {
             _configuration = configuration;
+            _characterRepository = characterRepository;
         }
 
         #endregion constructors
@@ -51,18 +57,48 @@ namespace KingMarvel.Application.Services
                 var responseData = JsonConvert.DeserializeObject<dynamic>(responseBody);
                 foreach (var item in responseData.data.results)
                 {
+                    var existentCharacter = await _characterRepository.GetByIdAsync((int)item.id);
                     characters.Add(new CharacterResponseViewModel
                     {
                         Id = item.id,
                         Name = item.name,
                         Description = item.description,
-                        Favorite = false,
+                        Favorite = existentCharacter != null ? existentCharacter.Favorite : false,
                         Thumb = $"{item.thumbnail.path}.{item.thumbnail.extension}"
                     });
                 }
             }
 
             return characters;
+        }
+
+        public async Task<CharacterResponseViewModel> Favorite(CharacterRequestViewModel characterViewModel)
+        {
+            BeginTransaction();
+            
+            var existentCharacter = await _characterRepository.GetByIdAsync(characterViewModel.Id);
+
+            if (existentCharacter != null)
+            {
+                await _characterRepository.RemoveAsync(existentCharacter);
+                Commit();
+
+                characterViewModel.Favorite = false;
+                return _mapper.Map<CharacterResponseViewModel>(characterViewModel);
+            }
+
+            var allFavorites = await _characterRepository.FindAllByAsync(c => c.Favorite);
+
+            if (allFavorites.Count() == 5)
+                throw new KingMarvelException(Resources.Resource.limit_favorite_exception);
+
+            characterViewModel.Favorite = true;
+            var character = _mapper.Map<Character>(characterViewModel);
+            await _characterRepository.AddAsync(character);
+
+            Commit();
+
+            return _mapper.Map<CharacterResponseViewModel>(characterViewModel);
         }
 
         #endregion public methods implementations
