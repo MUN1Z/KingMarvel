@@ -1,3 +1,4 @@
+using KingMarvel.Application.Filters;
 using KingMarvel.Application.Services.Interfaces;
 using KingMarvel.Application.ViewModels.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -16,8 +17,8 @@ namespace KingMarvel.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
-            => Response(await _characterService.GetAll());
+        public async Task<IActionResult> GetAll([FromQuery] CharacterFilter filter)
+            => Response(await _characterService.GetAll(filter));
 
         [HttpPost]
         public async Task<IActionResult> Favorite([FromBody] CharacterRequestViewModel characterViewModel)

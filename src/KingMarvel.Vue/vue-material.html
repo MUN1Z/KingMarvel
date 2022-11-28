@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <title>KingMarvel</title>
 </head>
 <body>
     <div id="app">
         <v-app>
             <v-main>
-                <v-container>{{ pageTitle }}</v-container>
-
                 <v-flex>
                     <v-card>
                         <v-card-actions>
@@ -19,33 +18,42 @@
                                 <v-col cols="3"
                                        sm="4"
                                        md="4">
-                                    <v-text-field label="Search"></v-text-field>
+                                    <v-text-field label="Character Name" v-model="characterNameFilter"></v-text-field>
                                 </v-col>
 
                                 <v-col cols="3"
                                        sm="4"
                                        md="4">
-                                    <v-select v-model="size" :items="items" label="Tipo"></v-select>
+                                    <v-select v-model="characterTypeFilter" :items="itemsCharacterTypeFilter" label="Type"></v-select>
                                     <v-spacer></v-spacer>
                                 </v-col>
 
                                 <v-col cols="2"
                                        sm="4"
                                        md="4">
+                                    <v-btn tile
+                                           color="success"
+                                           style="margin-top: 12px;"
+                                           @click="onFilterClick()">
+                                        <v-icon left>
+                                            mdi-filter
+                                        </v-icon>
+                                        Filter
+                                    </v-btn>
                                 </v-col>
                             </v-row>
                         </v-card-actions>
                         <v-container fluid>
-                            <v-layout row wrap >
+                            <v-layout row wrap>
                                 <v-flex v-for="character in characters"
                                         :key="character"
-                                         xs12 sm6 md4 lg4>
+                                        xs12 sm6 md4 lg4>
                                     <div class="grow v-card v-sheet theme--light elevation-3" style="height: 400px; margin: 10px; ">
                                         <v-img max-height="336"
                                                :src="`${character.thumb}`"></v-img>
 
                                         <v-row>
-                                            <v-col >
+                                            <v-col>
                                                 <div class="v-card__title">{{ character.name }}</div>
                                             </v-col>
 
@@ -54,7 +62,7 @@
                                                    sm="2"
                                                    md="2"
                                                    lg="2">
-                                                <v-rating  v-model="rating" color="warning"
+                                                <v-rating v-model="rating" color="warning"
                                                           dense
                                                           hover
                                                           length="1"
@@ -63,7 +71,7 @@
                                                     <template v-slot:item="props">
                                                         <v-icon :color="character.favorite === true ? 'yellow' : 'grey lighten-1'"
                                                                 @click="onStarClick(character)"
-                                                                size="50" >
+                                                                size="50">
                                                             mdi-star
                                                         </v-icon>
                                                     </template>
@@ -90,11 +98,13 @@
             el: '#app',
             vuetify: new Vuetify(),
             data: {
-                pageTitle: 'KingMarvel',
                 characters: null,
-                items: ['All', 'Favorites']
+                itemsCharacterTypeFilter: ['All Characters', 'Favorite Characters'],
+                characterNameFilter: null,
+                characterTypeFilter: null,
             },
             mounted() {
+                this.characterTypeFilter = this.itemsCharacterTypeFilter[0]
                 axios
                     .get('https://localhost:44384/api/Character')
                     .then(response => (this.characters = response.data.data))
@@ -112,6 +122,21 @@
                             console.error(error)
                             alert(error.response.data.errors[0])
                         })
+                },
+                onFilterClick: function () {
+
+                    var url = 'https://localhost:44384/api/Character'
+
+                    if (this.characterNameFilter !== null)
+                        url += '?Name=' + this.characterNameFilter
+
+                    if (this.characterTypeFilter === this.itemsCharacterTypeFilter[1])
+                        url += (this.characterNameFilter !== null ? '&' : '?') + 'Favorite=true'
+
+                    axios
+                        .get(url)
+                        .then(response => (this.characters = response.data.data))
+                        .catch(error => console.error(error))
                 }
             }
         })
