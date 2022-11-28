@@ -1,5 +1,6 @@
 ﻿using KingMarvel.Database.Contexts;
 using KingMarvel.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace KingMarvel.Database.Seed
 {

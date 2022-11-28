@@ -32,7 +32,6 @@
                                 <v-col cols="2"
                                        sm="4"
                                        md="4">
-                                    <!--<v-btn elevation="2">Filter</v-btn>-->
                                 </v-col>
                             </v-row>
                         </v-card-actions>
@@ -51,28 +50,27 @@
                                             </v-col>
 
                                             <v-col cols="2"
-                                               xs="2"
-                                               sm="2"
-                                               md="2"
-                                               lg="2">
-                                                <v-rating color="warning"
+                                                   xs="2"
+                                                   sm="2"
+                                                   md="2"
+                                                   lg="2">
+                                                <v-rating  v-model="rating" color="warning"
                                                           dense
                                                           hover
                                                           length="1"
                                                           value="0"
-                                                          size="50"></v-rating>
+                                                          size="50">
+                                                    <template v-slot:item="props">
+                                                        <v-icon :color="character.favorite === true ? 'yellow' : 'grey lighten-1'"
+                                                                @click="onStarClick(character)"
+                                                                size="50" >
+                                                            mdi-star
+                                                        </v-icon>
+                                                    </template>
+                                                </v-rating>
                                             </v-col>
 
                                         </v-row>
-
-                                        <!--<div class="v-card__title">{{ character.name }}</div>
-                                        <div class="v-card__subtitle">{{ character.name }}</div>-->
-                                        <!--<div class="v-card__text">{{ character.description }}</div>-->
-                                        <!--<div class="v-card__actions">
-                                            <button type="button" class="v-btn v-btn--text theme--light v-size--default primary--text">
-                                                <span class="v-btn__content">Favoritar</span>
-                                            </button>
-                                        </div>-->
                                     </div>
                                 </v-flex>
                             </v-layout>
@@ -92,15 +90,29 @@
             el: '#app',
             vuetify: new Vuetify(),
             data: {
-                pageTitle: 'HelloWorld VueJS',
+                pageTitle: 'KingMarvel',
                 characters: null,
-                items: ['Todos', 'Favoritos']
+                items: ['All', 'Favorites']
             },
             mounted() {
                 axios
                     .get('https://localhost:44384/api/Character')
                     .then(response => (this.characters = response.data.data))
                     .catch(error => console.error(error))
+            },
+            methods: {
+                onStarClick: function (character) {
+                    axios
+                        .post('https://localhost:44384/api/Character', character)
+                        .then(response => {
+                            const characterResponse = response.data.data
+                            character.favorite = characterResponse.favorite
+                        })
+                        .catch(error => {
+                            console.error(error)
+                            alert(error.response.data.errors[0])
+                        })
+                }
             }
         })
     </script>

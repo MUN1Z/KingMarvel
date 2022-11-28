@@ -1,4 +1,6 @@
-﻿using KingMarvel.Domain.Entities;
+﻿using KingMarvel.Database.Extensions;
+using KingMarvel.Database.Mappings;
+using KingMarvel.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -6,6 +8,8 @@ namespace KingMarvel.Database.Contexts
 {
     public class KingMarvelContext : DbContext
     {
+        public DbSet<Character> Character { get; set; }
+
         public KingMarvelContext(DbContextOptions<KingMarvelContext> options) : base(options)
         {
         }
@@ -18,6 +22,8 @@ namespace KingMarvel.Database.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.AddConfiguration(new CharacterMapping());
+
             base.OnModelCreating(modelBuilder);
         }
 
