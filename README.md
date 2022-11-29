@@ -3,7 +3,7 @@ The main objective of the project is to develop a system to list and detail the 
 
 Azure Deploy Vue FrontEnd: https://kingmarvelvue.azurewebsites.net/ 
 
-Azure Deploy API: https://kingmarvelapi.azurewebsites.net
+Azure Deploy API: [https://kingmarvelapi.azurewebsites.net](https://kingmarvelapi.azurewebsites.net/swagger/index.html)
 
 See the Wiki Page: https://github.com/Mun1z/KingMarvel/wiki
 
